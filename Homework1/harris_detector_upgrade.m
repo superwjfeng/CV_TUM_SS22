@@ -1,4 +1,4 @@
-function [features, corners, row, col] = harris_detector(input_image, varargin)
+function [min_dist, tile_size, N] = harris_detector_upgrade(input_image, varargin)
     % In this function you are going to implement a Harris detector that extracts features
     % from the input_image.
 
@@ -18,12 +18,31 @@ function [features, corners, row, col] = harris_detector(input_image, varargin)
     default_do_plot = false;
     addOptional(p, 'do_plot',default_do_plot, @(x) islogical(x));
 
+    default_min_dist = 20;
+    addOptional(p, 'min_dist', default_min_dist, @(x) isnumeric(x) && x>=1);
+
+    default_tile_size = [200, 200];
+    addOptional(p, 'tile_size', default_tile_size, @(x) isnumeric(x));
+
+    default_N = 5;
+    addOptional(p, 'N', default_N, @(x) isnumeric(x) && x>=1);
+
     parse(p,'input_image', varargin{:});
+
+    if length(p.Results.tile_size) == 2
+        Results.tile_size = p.Results.tile_size;
+    else
+        height = p.Results.tile_size;
+        Results.tile_size = [height, 200];
+    end
 
     segment_length = p.Results.segment_length;
     k = p.Results.k;
     tau = p.Results.tau;
     do_plot = p.Results.do_plot;
+    min_dist = p.Results.min_dist;
+    tile_size = Results.tile_size;
+    N = p.Results.N;
 
     %%
     % 总体思路：角点是通过x和y方向都存在较大变化（即x和y方向都是边缘）找出来的
